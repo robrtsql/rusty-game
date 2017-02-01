@@ -1,0 +1,4 @@
+target
+**/*.bk
+assets/**/*.png
+assets/**/*.json
