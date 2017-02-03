@@ -3,6 +3,7 @@ extern crate sdl2;
 use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
+mod aseprite;
 
 const SCREEN_FPS: u32 = 60;
 const SCREEN_TICKS_PER_FRAME: u32 = 1000 / SCREEN_FPS;
@@ -25,6 +26,8 @@ pub fn main() {
     renderer.present();
     let mut event_pump = sdl_context.event_pump().unwrap();
 
+    aseprite::import("abc");
+
     let mut timer = sdl_context.timer().unwrap();
 
     let mut keep_playing = true;
@@ -43,23 +46,29 @@ pub fn main() {
 
         // do the game logic
 
-        let frame_ticks: u32 = timer.ticks() - start_ticks;
-        let delay_ticks: u32 = SCREEN_TICKS_PER_FRAME - frame_ticks;
-
-        if delay_ticks > 0 {
-            timer.delay(delay_ticks);
-        }
-
-        let post_delay_ticks: u32 = timer.ticks() - start_ticks;
-        let post_delay_ticks_float = post_delay_ticks as f32;
-        let unbounded_delta_time: f32 = post_delay_ticks_float / 1000.0;
-        let delta_time: f32 = if unbounded_delta_time > MAX_DELTA_TIME {
-            MAX_DELTA_TIME
-        } else {
-            unbounded_delta_time
-        };
-
-        print!("{} seconds have passed\n", delta_time);
-        std::io::stdout();
+        sleep_til_next_frame(&mut timer, start_ticks);
     }
+}
+
+fn sleep_til_next_frame(timer: &mut sdl2::TimerSubsystem, start_ticks: u32)  -> f32 {
+    let frame_ticks: u32 = timer.ticks() - start_ticks;
+    let delay_ticks: u32 = SCREEN_TICKS_PER_FRAME - frame_ticks;
+
+    if delay_ticks > 0 {
+        timer.delay(delay_ticks);
+    }
+
+    let post_delay_ticks: u32 = timer.ticks() - start_ticks;
+    let post_delay_ticks_float = post_delay_ticks as f32;
+    let unbounded_delta_time: f32 = post_delay_ticks_float / 1000.0;
+    let delta_time: f32 = if unbounded_delta_time > MAX_DELTA_TIME {
+        MAX_DELTA_TIME
+    } else {
+        unbounded_delta_time
+    };
+
+    print!("{} seconds have passed\n", delta_time);
+    std::io::stdout();
+
+    return delta_time;
 }
