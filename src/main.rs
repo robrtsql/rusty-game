@@ -8,6 +8,7 @@ use std::path::Path;
 use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::image::*;
+use sdl2::rect::Point;
 use sdl2::rect::Rect;
 use sdl2::keyboard::Keycode;
 mod ase;
@@ -29,7 +30,7 @@ pub fn main() {
 
     let mut renderer = window.renderer().build().unwrap();
 
-    renderer.set_draw_color(Color::RGB(255, 0, 0));
+    renderer.set_draw_color(Color::RGB(255, 255, 255));
     renderer.clear();
     renderer.present();
     let mut event_pump = sdl_context.event_pump().unwrap();
@@ -41,7 +42,13 @@ pub fn main() {
     println!("Got {}", aseprite.meta.image);
     let texture = renderer.load_texture(Path::new(&aseprite.meta.image)).unwrap();
 
-    renderer.copy(&texture, None, None).expect("Render failed");
+    let ref frame = aseprite.frames["character_idle 0.ase"].frame;
+    let mut source_rect = Rect::new(frame.x, frame.y, frame.w, frame.h);
+    let zoom = 2;
+    let mut dest_rect = Rect::new(frame.x, frame.y, frame.w * zoom, frame.h * zoom);
+    dest_rect.center_on(Point::new(400, 300));
+
+    renderer.copy(&texture, Some(source_rect), Some(dest_rect)).expect("Render failed");
     renderer.present();
 
     let mut keep_playing = true;
