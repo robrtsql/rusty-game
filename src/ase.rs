@@ -1,6 +1,18 @@
 use serde_json::*;
 use ::std::collections::HashMap;
 use ::std::fs::File;
+use ::std::path::Path;
+use sdl2::image::*;
+use sdl2::render::*;
+
+// TODO: Reorganize struct for
+// sprite sheet/move to new module
+// in order to make it easier to work with?
+#[derive(Debug)]
+pub struct Sheet {
+    pub aseprite: Aseprite,
+    pub image: Texture,
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Aseprite {
@@ -53,9 +65,14 @@ pub struct FrameTag {
     pub direction: String,
 }
 
-pub fn import(filename: &str) -> Aseprite {
+pub fn import(filename: &str, renderer: &Renderer) -> Sheet {
     let json_file_name = format!("{}.json", filename);
     let file = File::open(format!("assets/{}", json_file_name)).unwrap();
     let aseprite: Aseprite = de::from_reader(file).unwrap();
-    return aseprite;
+    let image = renderer.load_texture(Path::new(&aseprite.meta.image)).unwrap();
+    let sheet = Sheet { 
+        aseprite: aseprite, 
+        image: image
+        };
+    return sheet;
 }

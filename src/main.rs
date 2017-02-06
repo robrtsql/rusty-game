@@ -37,18 +37,17 @@ pub fn main() {
 
     let mut timer = sdl_context.timer().unwrap();
 
-    let aseprite = ase::import("character_idle");
+    let sheet = ase::import("character_idle", &renderer);
 
-    println!("Got {}", aseprite.meta.image);
-    let texture = renderer.load_texture(Path::new(&aseprite.meta.image)).unwrap();
+    println!("Got {}", sheet.aseprite.meta.image);
 
-    let ref frame = aseprite.frames["character_idle 0.ase"].frame;
+    let ref frame = sheet.aseprite.frames["character_idle 0.ase"].frame;
     let mut source_rect = Rect::new(frame.x, frame.y, frame.w, frame.h);
     let zoom = 2;
     let mut dest_rect = Rect::new(frame.x, frame.y, frame.w * zoom, frame.h * zoom);
     dest_rect.center_on(Point::new(400, 300));
 
-    renderer.copy(&texture, Some(source_rect), Some(dest_rect)).expect("Render failed");
+    renderer.copy(&sheet.image, Some(source_rect), Some(dest_rect)).expect("Render failed");
     renderer.present();
 
     let mut keep_playing = true;
