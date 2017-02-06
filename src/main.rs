@@ -1,9 +1,16 @@
+#[macro_use]
+extern crate serde_derive;
+#[macro_use]
+extern crate serde_json;
 extern crate sdl2;
 
+use std::path::Path;
 use sdl2::pixels::Color;
 use sdl2::event::Event;
+use sdl2::image::*;
+use sdl2::rect::Rect;
 use sdl2::keyboard::Keycode;
-mod aseprite;
+mod ase;
 
 const SCREEN_FPS: u32 = 60;
 const SCREEN_TICKS_PER_FRAME: u32 = 1000 / SCREEN_FPS;
@@ -12,6 +19,7 @@ const MAX_DELTA_TIME: f32 = 0.05;
 pub fn main() {
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
+    let _image_context = sdl2::image::init(INIT_PNG).unwrap();
 
     let window = video_subsystem.window("rustgame", 800, 600)
         .position_centered()
@@ -26,12 +34,17 @@ pub fn main() {
     renderer.present();
     let mut event_pump = sdl_context.event_pump().unwrap();
 
-    aseprite::import("abc");
-
     let mut timer = sdl_context.timer().unwrap();
 
-    let mut keep_playing = true;
+    let aseprite = ase::import("character_idle");
 
+    println!("Got {}", aseprite.meta.image);
+    let texture = renderer.load_texture(Path::new(&aseprite.meta.image)).unwrap();
+
+    renderer.copy(&texture, None, None).expect("Render failed");
+    renderer.present();
+
+    let mut keep_playing = true;
     while keep_playing {
         for event in event_pump.poll_iter() {
             match event {
@@ -42,11 +55,12 @@ pub fn main() {
                 _ => {}
             }
         }
+        let mut dt = 0.016;
         let start_ticks = timer.ticks();
 
         // do the game logic
 
-        sleep_til_next_frame(&mut timer, start_ticks);
+        dt = sleep_til_next_frame(&mut timer, start_ticks);
     }
 }
 
@@ -66,9 +80,6 @@ fn sleep_til_next_frame(timer: &mut sdl2::TimerSubsystem, start_ticks: u32)  -> 
     } else {
         unbounded_delta_time
     };
-
-    print!("{} seconds have passed\n", delta_time);
-    std::io::stdout();
 
     return delta_time;
 }

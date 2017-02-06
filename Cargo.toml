@@ -2,6 +2,17 @@
 name = "rustgame"
 version = "0.1.0"
 authors = ["robrtsql <robrtsql@gmail.com>"]
+build = "src/build.rs"
+
+[build-dependencies]
+serde = "0.9"
+serde_derive = "0.9"
+serde_json = "0.9"
+
+[dependencies]
+serde = "0.9"
+serde_derive = "0.9"
+serde_json = "0.9"
 
 [dependencies.sdl2]
 version = "0.28"
