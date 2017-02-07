@@ -57,7 +57,7 @@ pub fn main() {
     }
 }
 
-fn sleep_til_next_frame(timer: &mut sdl2::TimerSubsystem, start_ticks: u32)  -> f32 {
+fn sleep_til_next_frame(timer: &mut sdl2::TimerSubsystem, start_ticks: u32) -> f32 {
     let frame_ticks: u32 = timer.ticks() - start_ticks;
     let delay_ticks: u32 = SCREEN_TICKS_PER_FRAME - frame_ticks;
 
