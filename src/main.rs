@@ -5,14 +5,10 @@ extern crate serde_derive;
 extern crate serde_json;
 extern crate sdl2;
 
-use std::path::Path;
 use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::image::*;
-use sdl2::rect::Point;
-use sdl2::rect::Rect;
 use sdl2::keyboard::Keycode;
-use num_traits::float::Float;
 mod ase;
 
 const SCREEN_FPS: u32 = 60;
@@ -39,16 +35,9 @@ pub fn main() {
 
     let mut timer = sdl_context.timer().unwrap();
 
-    let sheet = ase::import("character_idle", &renderer);
+    let mut sheet = ase::import("character_idle", &renderer);
 
-    let ref frame = sheet.aseprite.frames["character_idle 0.ase"].frame;
-    let mut source_rect = Rect::new(frame.x, frame.y, frame.w, frame.h);
-    let zoom = 2;
-    let mut dest_rect = Rect::new(frame.x, frame.y, frame.w * zoom, frame.h * zoom);
-    dest_rect.center_on(Point::new(400, 300));
-
-    let mut anim_duration = 0.0;
-
+    let mut dt = 0.016;
     let mut keep_playing = true;
     while keep_playing {
         for event in event_pump.poll_iter() {
@@ -60,19 +49,9 @@ pub fn main() {
                 _ => {}
             }
         }
-        let mut dt = 0.016;
         let start_ticks = timer.ticks();
 
-        anim_duration += dt;
-        let current_frame_index = (((anim_duration * 1000.0) % 200.0) / 100.0).floor();
-
-        {
-            let ref current_frame = sheet.anims["Idle"].get(current_frame_index as usize).unwrap().frame;
-            let mut source_rect = Rect::new(current_frame.x, current_frame.y, current_frame.w, current_frame.h);
-            renderer.copy(&sheet.image, Some(source_rect), Some(dest_rect)).expect("Render failed");
-            renderer.present();
-            renderer.clear();
-        }
+        sheet.render(&mut renderer, dt);
 
         dt = sleep_til_next_frame(&mut timer, start_ticks);
     }
