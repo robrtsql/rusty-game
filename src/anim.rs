@@ -10,21 +10,27 @@ use ase::*;
 // sprite sheet/move to new module
 // in order to make it easier to work with?
 pub struct Sheet {
-    pub aseprite: Aseprite,
     pub image: Texture,
     pub name: String,
     pub anims: HashMap<String, Vec<Frame>>,
+    playback: Playback,
+}
+
+pub struct Playback {
+    current_anim: String,
     duration: f32,
 }
 
 impl Sheet {
     pub fn render(&mut self, renderer: &mut Renderer, dt: f32) {
-        self.duration += dt;
-        let current_frame_index = (((self.duration * 1000.0) % 200.0) / 100.0).floor();
+        self.playback.duration += dt;
+        let current_frame_index = (((self.playback.duration * 1000.0) % 200.0) / 100.0).floor();
 
         {
-            let ref current_frame =
-                self.anims["Idle"].get(current_frame_index as usize).unwrap().frame;
+            let ref current_frame = self.anims[&self.playback.current_anim]
+                .get(current_frame_index as usize)
+                .unwrap()
+                .frame;
             let source_rect = Rect::new(current_frame.x,
                                         current_frame.y,
                                         current_frame.w,
@@ -62,11 +68,13 @@ pub fn import_anim(filename: &str, renderer: &Renderer) -> Sheet {
     println!("{:?}", anim_map);
 
     let sheet = Sheet {
-        aseprite: aseprite,
         image: image,
         name: filename.to_string(),
         anims: anim_map,
-        duration: 0.0,
+        playback: Playback {
+            current_anim: "Idle".to_string(),
+            duration: 0.0,
+        },
     };
     return sheet;
 }

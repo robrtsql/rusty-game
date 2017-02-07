@@ -38,7 +38,7 @@ pub fn main() {
 
     let mut sheet = anim::import_anim("character_idle", &renderer);
 
-    let mut dt = 0.016;
+    let mut dt = 0.0;
     let mut keep_playing = true;
     while keep_playing {
         for event in event_pump.poll_iter() {
