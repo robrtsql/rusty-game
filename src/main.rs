@@ -9,6 +9,7 @@ use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::image::*;
 use sdl2::keyboard::Keycode;
+mod anim;
 mod ase;
 
 const SCREEN_FPS: u32 = 60;
@@ -35,7 +36,7 @@ pub fn main() {
 
     let mut timer = sdl_context.timer().unwrap();
 
-    let mut sheet = ase::import("character_idle", &renderer);
+    let mut sheet = anim::import_anim("character_idle", &renderer);
 
     let mut dt = 0.016;
     let mut keep_playing = true;
