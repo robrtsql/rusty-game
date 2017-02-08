@@ -6,13 +6,13 @@ use sdl2::rect::Rect;
 use sdl2::rect::Point;
 use ase::*;
 
-// TODO: Reorganize struct for
-// sprite sheet/move to new module
-// in order to make it easier to work with?
 pub struct Sheet {
     pub image: Texture,
     pub name: String,
     pub anims: HashMap<String, Vec<Frame>>,
+    // TODO: playback should be moved to a wrapper struct.
+    // it's the state of an animation currently being played,
+    // rather than the shared animation information
     playback: Playback,
 }
 
@@ -25,7 +25,6 @@ pub struct Playback {
 impl Sheet {
     pub fn render(&mut self, renderer: &mut Renderer, dt: f32) {
         self.playback.duration += dt * 1000.0;
-        //let current_frame_index = (((self.playback.duration * 1000.0) % 200.0) / 100.0).floor();
         self.update_frame_index();
 
         {
@@ -76,8 +75,6 @@ pub fn import_anim(filename: &str, renderer: &Renderer) -> Sheet {
         }
         anim_map.insert(anim.name.clone(), frames);
     }
-
-    println!("{:?}", anim_map);
 
     let sheet = Sheet {
         image: image,
