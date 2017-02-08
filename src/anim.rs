@@ -19,16 +19,18 @@ pub struct Sheet {
 pub struct Playback {
     current_anim: String,
     duration: f32,
+    current_frame_index: i32,
 }
 
 impl Sheet {
     pub fn render(&mut self, renderer: &mut Renderer, dt: f32) {
-        self.playback.duration += dt;
-        let current_frame_index = (((self.playback.duration * 1000.0) % 200.0) / 100.0).floor();
+        self.playback.duration += dt * 1000.0;
+        //let current_frame_index = (((self.playback.duration * 1000.0) % 200.0) / 100.0).floor();
+        self.update_frame_index();
 
         {
             let ref current_frame = self.anims[&self.playback.current_anim]
-                .get(current_frame_index as usize)
+                .get(self.playback.current_frame_index as usize)
                 .unwrap()
                 .frame;
             let source_rect = Rect::new(current_frame.x,
@@ -44,6 +46,16 @@ impl Sheet {
             renderer.copy(&self.image, Some(source_rect), Some(dest_rect)).expect("Render failed");
             renderer.present();
             renderer.clear();
+        }
+    }
+
+    pub fn update_frame_index(&mut self) {
+        let ref current_anim = self.anims.get(&self.playback.current_anim).unwrap();
+        while self.playback.duration >
+              current_anim.get(self.playback.current_frame_index as usize).unwrap().duration as
+              f32 {
+            self.playback.duration -= current_anim.get(self.playback.current_frame_index as usize).unwrap().duration as f32;
+            self.playback.current_frame_index = (self.playback.current_frame_index + 1) % current_anim.len() as i32;
         }
     }
 }
@@ -74,6 +86,7 @@ pub fn import_anim(filename: &str, renderer: &Renderer) -> Sheet {
         playback: Playback {
             current_anim: "Idle".to_string(),
             duration: 0.0,
+            current_frame_index: 0,
         },
     };
     return sheet;
