@@ -49,14 +49,23 @@ impl Sheet {
     }
 
     pub fn update_frame_index(&mut self) {
-        let ref current_anim = self.anims.get(&self.playback.current_anim).unwrap();
-        while self.playback.duration >
-              current_anim.get(self.playback.current_frame_index as usize).unwrap().duration as
-              f32 {
-            self.playback.duration -= current_anim.get(self.playback.current_frame_index as usize).unwrap().duration as f32;
-            self.playback.current_frame_index = (self.playback.current_frame_index + 1) % current_anim.len() as i32;
+        let ref mut anims = self.anims;
+        let ref current_anim = anims.get(&self.playback.current_anim).unwrap();
+        let mut current_frame_duration =
+            _get_current_frame_duration(self.playback.current_frame_index as usize, &current_anim);
+        while self.playback.duration > current_frame_duration {
+            self.playback.duration -= current_frame_duration;
+            self.playback.current_frame_index = (self.playback.current_frame_index + 1) %
+                                                current_anim.len() as i32;
+            current_frame_duration =
+                _get_current_frame_duration(self.playback.current_frame_index as usize,
+                                            &current_anim)
         }
     }
+}
+
+fn _get_current_frame_duration(index: usize, current_anim: &Vec<Frame>) -> f32 {
+    return current_anim.get(index).unwrap().duration as f32;
 }
 
 pub fn import_anim(filename: &str, renderer: &Renderer) -> Sheet {
