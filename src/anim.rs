@@ -25,7 +25,7 @@ pub struct Sheet {
 pub struct Playback {
     current_anim: String,
     duration: f32,
-    current_frame_index: i32,
+    current_frame_index: usize,
 }
 
 impl<'a> SpriteAnimator<'a> {
@@ -62,13 +62,13 @@ impl<'a> SpriteAnimator<'a> {
         let ref anims = self.sheet.anims;
         let ref current_anim = anims.get(&playback.current_anim).unwrap();
         let mut current_frame_duration =
-            _get_current_frame_duration(playback.current_frame_index as usize, &current_anim);
+            _get_current_frame_duration(playback.current_frame_index, &current_anim);
         while playback.duration > current_frame_duration {
             playback.duration -= current_frame_duration;
             playback.current_frame_index = (playback.current_frame_index + 1) %
-                                           current_anim.len() as i32;
+                                           current_anim.len();
             current_frame_duration =
-                _get_current_frame_duration(playback.current_frame_index as usize, &current_anim)
+                _get_current_frame_duration(playback.current_frame_index, &current_anim)
         }
     }
 }
