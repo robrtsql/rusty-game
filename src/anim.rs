@@ -1,35 +1,41 @@
 use std::collections::HashMap;
 use std::path::Path;
+use std::cell::RefCell;
 use sdl2::image::*;
 use sdl2::render::*;
 use sdl2::rect::Rect;
 use sdl2::rect::Point;
 use ase::*;
 
+// Represents a set of animations and what is currently playing
+pub struct SpriteAnimator<'a> {
+    sheet: &'a Sheet,
+    playback: RefCell<Playback>,
+}
+
+// Represents an .ase file, or a set of animations
 pub struct Sheet {
     pub image: Texture,
     pub name: String,
     pub anims: HashMap<String, Vec<Frame>>,
-    // TODO: playback should be moved to a wrapper struct.
-    // it's the state of an animation currently being played,
-    // rather than the shared animation information
-    playback: Playback,
 }
 
+// Represents the current playback state of an animator instance
+#[derive(Debug, Clone)]
 pub struct Playback {
     current_anim: String,
     duration: f32,
     current_frame_index: i32,
 }
 
-impl Sheet {
-    pub fn render(&mut self, renderer: &mut Renderer, dt: f32) {
-        self.playback.duration += dt * 1000.0;
-        self.update_frame_index();
+impl<'a> SpriteAnimator<'a> {
+    pub fn render(&self, renderer: &mut Renderer, dt: f32) {
+        self.update_frame_index(dt);
 
         {
-            let ref current_frame = self.anims[&self.playback.current_anim]
-                .get(self.playback.current_frame_index as usize)
+            let ref playback = self.playback.borrow();
+            let ref current_frame = self.sheet.anims[&playback.current_anim]
+                .get(playback.current_frame_index as usize)
                 .unwrap()
                 .frame;
             let source_rect = Rect::new(current_frame.x,
@@ -42,24 +48,27 @@ impl Sheet {
                                           current_frame.w * zoom,
                                           current_frame.h * zoom);
             dest_rect.center_on(Point::new(400, 300));
-            renderer.copy(&self.image, Some(source_rect), Some(dest_rect)).expect("Render failed");
+            renderer.copy(&self.sheet.image, Some(source_rect), Some(dest_rect))
+                .expect("Render failed");
             renderer.present();
             renderer.clear();
         }
     }
 
-    pub fn update_frame_index(&mut self) {
-        let ref mut anims = self.anims;
-        let ref current_anim = anims.get(&self.playback.current_anim).unwrap();
+    pub fn update_frame_index(&self, dt: f32) {
+        let ref mut playback = self.playback.borrow_mut();
+        playback.duration += dt * 1000.0;
+
+        let ref anims = self.sheet.anims;
+        let ref current_anim = anims.get(&playback.current_anim).unwrap();
         let mut current_frame_duration =
-            _get_current_frame_duration(self.playback.current_frame_index as usize, &current_anim);
-        while self.playback.duration > current_frame_duration {
-            self.playback.duration -= current_frame_duration;
-            self.playback.current_frame_index = (self.playback.current_frame_index + 1) %
-                                                current_anim.len() as i32;
+            _get_current_frame_duration(playback.current_frame_index as usize, &current_anim);
+        while playback.duration > current_frame_duration {
+            playback.duration -= current_frame_duration;
+            playback.current_frame_index = (playback.current_frame_index + 1) %
+                                           current_anim.len() as i32;
             current_frame_duration =
-                _get_current_frame_duration(self.playback.current_frame_index as usize,
-                                            &current_anim)
+                _get_current_frame_duration(playback.current_frame_index as usize, &current_anim)
         }
     }
 }
@@ -68,8 +77,8 @@ fn _get_current_frame_duration(index: usize, current_anim: &Vec<Frame>) -> f32 {
     return current_anim.get(index).unwrap().duration as f32;
 }
 
-pub fn import_anim(filename: &str, renderer: &Renderer) -> Sheet {
-    let aseprite = ::ase::import(filename);
+pub fn import_sheet(filename: &str, renderer: &Renderer) -> Sheet {
+    let aseprite = import(filename);
     let image = renderer.load_texture(Path::new(&aseprite.meta.image)).unwrap();
     let mut anim_map = HashMap::new();
 
@@ -85,15 +94,20 @@ pub fn import_anim(filename: &str, renderer: &Renderer) -> Sheet {
         anim_map.insert(anim.name.clone(), frames);
     }
 
-    let sheet = Sheet {
+    return Sheet {
         image: image,
         name: filename.to_string(),
         anims: anim_map,
-        playback: Playback {
+    };
+}
+
+pub fn get_animator<'a>(sheet: &'a Sheet) -> SpriteAnimator<'a> {
+    return SpriteAnimator {
+        sheet: sheet,
+        playback: RefCell::new(Playback {
             current_anim: "Idle".to_string(),
             duration: 0.0,
             current_frame_index: 0,
-        },
+        }),
     };
-    return sheet;
 }

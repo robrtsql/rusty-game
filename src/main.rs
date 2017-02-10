@@ -36,7 +36,8 @@ pub fn main() {
 
     let mut timer = sdl_context.timer().unwrap();
 
-    let mut sheet = anim::import_anim("character_idle", &renderer);
+    let sheet = anim::import_sheet("character_idle", &renderer);
+    let animator = anim::get_animator(&sheet);
 
     let mut dt = 0.0;
     let mut keep_playing = true;
@@ -52,7 +53,7 @@ pub fn main() {
         }
         let start_ticks = timer.ticks();
 
-        sheet.render(&mut renderer, dt);
+        animator.render(&mut renderer, dt);
 
         dt = sleep_til_next_frame(&mut timer, start_ticks);
     }
