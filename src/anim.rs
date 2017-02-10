@@ -29,7 +29,7 @@ pub struct Playback {
 }
 
 impl<'a> SpriteAnimator<'a> {
-    pub fn render(&self, renderer: &mut Renderer, dt: f32) {
+    pub fn render(&self, x: i32, y: i32, zoom: u32, dt: f32, renderer: &mut Renderer) {
         self.update_frame_index(dt);
 
         {
@@ -42,12 +42,11 @@ impl<'a> SpriteAnimator<'a> {
                                         current_frame.y,
                                         current_frame.w,
                                         current_frame.h);
-            let zoom = 2;
             let mut dest_rect = Rect::new(current_frame.x,
                                           current_frame.y,
                                           current_frame.w * zoom,
                                           current_frame.h * zoom);
-            dest_rect.center_on(Point::new(400, 300));
+            dest_rect.center_on(Point::new(x, y));
             renderer.copy(&self.sheet.image, Some(source_rect), Some(dest_rect))
                 .expect("Render failed");
             renderer.present();

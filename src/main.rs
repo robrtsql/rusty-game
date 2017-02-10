@@ -53,7 +53,7 @@ pub fn main() {
         }
         let start_ticks = timer.ticks();
 
-        animator.render(&mut renderer, dt);
+        animator.render(100, 100, 2, dt, &mut renderer);
 
         dt = sleep_til_next_frame(&mut timer, start_ticks);
     }
