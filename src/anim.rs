@@ -32,26 +32,24 @@ impl<'a> SpriteAnimator<'a> {
     pub fn render(&self, x: i32, y: i32, zoom: u32, dt: f32, renderer: &mut Renderer) {
         self.update_frame_index(dt);
 
-        {
-            let ref playback = self.playback.borrow();
-            let ref current_frame = self.sheet.anims[&playback.current_anim]
-                .get(playback.current_frame_index as usize)
-                .unwrap()
-                .frame;
-            let source_rect = Rect::new(current_frame.x,
+        let ref playback = self.playback.borrow();
+        let ref current_frame = self.sheet.anims[&playback.current_anim]
+            .get(playback.current_frame_index as usize)
+            .unwrap()
+            .frame;
+        let source_rect = Rect::new(current_frame.x,
+                                    current_frame.y,
+                                    current_frame.w,
+                                    current_frame.h);
+        let mut dest_rect = Rect::new(current_frame.x,
                                         current_frame.y,
-                                        current_frame.w,
-                                        current_frame.h);
-            let mut dest_rect = Rect::new(current_frame.x,
-                                          current_frame.y,
-                                          current_frame.w * zoom,
-                                          current_frame.h * zoom);
-            dest_rect.center_on(Point::new(x, y));
-            renderer.copy(&self.sheet.image, Some(source_rect), Some(dest_rect))
-                .expect("Render failed");
-            renderer.present();
-            renderer.clear();
-        }
+                                        current_frame.w * zoom,
+                                        current_frame.h * zoom);
+        dest_rect.center_on(Point::new(x, y));
+        renderer.copy(&self.sheet.image, Some(source_rect), Some(dest_rect))
+            .expect("Render failed");
+        renderer.present();
+        renderer.clear();
     }
 
     pub fn update_frame_index(&self, dt: f32) {
