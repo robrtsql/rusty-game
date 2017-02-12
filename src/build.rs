@@ -55,50 +55,21 @@ fn get_ase_needs_rebuilt() -> Vec<OsString> {
     return needs_rebuilt_list;
 }
 
-// Rust is great because it prevents us from having unassigned
-// references, but it also makes it hard for us to optionally
-// do something if and only if many Option<>s are not None.
-// For each Option<>, we have to introduce a new scope, and
-// suddenly our code has 8 or 9 tabs/indents. Instead, I opted
-// to put each new binding of the Some() value into a new
-// function. And I named them numerically. Please forgive me.
-
 fn decide_if_needs_rebuilt(file: &AseFile) -> bool {
-    match file.ase {
-        Some(ref ase_meta) => {
-            return decide_if_needs_rebuilt_2(file, ase_meta);
+    match *file {
+        // If we aren't missing any files, then we only need to build
+        // if the .ase file has been updated since the last build
+        AseFile { ase: Some(ref ase_meta), png: Some(ref png_meta), json: Some(ref json_meta) } => {
+            return ase_meta.modified > png_meta.modified || ase_meta.modified > json_meta.modified;
         },
-        None => {
-            // If there's no .ase file, there's nothing to build
+        AseFile { ase: None, .. } => {
+            // If we don't have an .ase file, then there's nothing to build
             return false;
         }
-    }
-}
-
-fn decide_if_needs_rebuilt_2(file: &AseFile, ase_meta: &AseFileMetadata) -> bool {
-    match file.png {
-        Some(ref png_meta) => {
-            return decide_if_needs_rebuilt_3(file, ase_meta, png_meta);
-        },
-        None => {
+        _ => {
             return true;
         }
     }
-}
-
-fn decide_if_needs_rebuilt_3(file: &AseFile, ase_meta: &AseFileMetadata, png_meta: &AseFileMetadata) -> bool {
-    match file.json {
-        Some(ref json_meta) => {
-            return decide_if_needs_rebuilt_4(ase_meta, png_meta, json_meta);
-        },
-        None => {
-            return true;
-        }
-    }
-}
-
-fn decide_if_needs_rebuilt_4(ase_meta: &AseFileMetadata, png_meta: &AseFileMetadata, json_meta: &AseFileMetadata) -> bool {
-    return ase_meta.modified > png_meta.modified || ase_meta.modified > json_meta.modified;
 }
 
 pub fn main() {
