@@ -42,9 +42,9 @@ impl<'a> SpriteAnimator<'a> {
                                     current_frame.w,
                                     current_frame.h);
         let mut dest_rect = Rect::new(current_frame.x,
-                                        current_frame.y,
-                                        current_frame.w * zoom,
-                                        current_frame.h * zoom);
+                                      current_frame.y,
+                                      current_frame.w * zoom,
+                                      current_frame.h * zoom);
         dest_rect.center_on(Point::new(x, y));
         renderer.copy(&self.sheet.image, Some(source_rect), Some(dest_rect))
             .expect("Render failed");
@@ -58,14 +58,13 @@ impl<'a> SpriteAnimator<'a> {
 
         let ref anims = self.sheet.anims;
         let ref current_anim = anims.get(&playback.current_anim).unwrap();
-        let mut current_frame_duration =
-            _get_current_frame_duration(playback.current_frame_index, &current_anim);
+        let mut current_frame_duration = _get_current_frame_duration(playback.current_frame_index,
+                                                                     &current_anim);
         while playback.duration > current_frame_duration {
             playback.duration -= current_frame_duration;
-            playback.current_frame_index = (playback.current_frame_index + 1) %
-                                           current_anim.len();
-            current_frame_duration =
-                _get_current_frame_duration(playback.current_frame_index, &current_anim)
+            playback.current_frame_index = (playback.current_frame_index + 1) % current_anim.len();
+            current_frame_duration = _get_current_frame_duration(playback.current_frame_index,
+                                                                 &current_anim)
         }
     }
 }
