@@ -5,12 +5,15 @@ extern crate serde_derive;
 extern crate serde_json;
 extern crate sdl2;
 
+use std::collections::HashMap;
 use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::image::*;
 use sdl2::keyboard::Keycode;
+use graphics::Graphics;
 mod anim;
 mod ase;
+mod graphics;
 
 const SCREEN_FPS: u32 = 60;
 const SCREEN_TICKS_PER_FRAME: u32 = 1000 / SCREEN_FPS;
@@ -32,12 +35,18 @@ pub fn main() {
     renderer.set_draw_color(Color::RGB(255, 255, 255));
     renderer.clear();
     renderer.present();
+
+    let mut graphics = Graphics::new(renderer);
+
     let mut event_pump = sdl_context.event_pump().unwrap();
 
     let mut timer = sdl_context.timer().unwrap();
 
-    let sheet = anim::import_sheet("character_idle", &renderer);
+    let sheet = anim::import_sheet("character_idle", &graphics.renderer);
     let animator = anim::get_animator(&sheet);
+    graphics.load_texture("assets/character_idle.png".to_string());
+
+    let character_idle_path = "assets/character_idle.png".to_string();
 
     let mut dt = 0.0;
     let mut keep_playing = true;
@@ -53,7 +62,7 @@ pub fn main() {
         }
         let start_ticks = timer.ticks();
 
-        animator.render(100, 100, 2, dt, &mut renderer);
+        graphics.render(&character_idle_path, &animator, 100, 100, 2, dt);
 
         dt = sleep_til_next_frame(&mut timer, start_ticks);
     }
