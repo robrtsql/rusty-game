@@ -16,7 +16,7 @@ impl<'a> Graphics<'a> {
         return Graphics {
             textures: HashMap::new(),
             renderer: renderer,
-        }
+        };
     }
 
     pub fn load_texture(&mut self, texture_path: String) {
@@ -24,7 +24,13 @@ impl<'a> Graphics<'a> {
         self.textures.insert(texture_path, image);
     }
 
-    pub fn render(&mut self, texture_path: &String, animator: &SpriteAnimator, x: i32, y: i32, zoom: u32, dt: f32) {
+    pub fn render(&mut self,
+                  texture_path: &String,
+                  animator: &SpriteAnimator,
+                  x: i32,
+                  y: i32,
+                  zoom: u32,
+                  dt: f32) {
         animator.update_frame_index(dt);
         let ref playback = animator.playback.borrow();
         let ref current_frame = animator.sheet.anims[&playback.current_anim]
