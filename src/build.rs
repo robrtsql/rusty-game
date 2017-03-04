@@ -1,3 +1,5 @@
+extern crate os_type;
+
 use std::fs;
 use std::collections::HashMap;
 use std::ffi::OsString;
@@ -77,7 +79,11 @@ pub fn main() {
     for os_filename in needs_rebuilt_list {
         let filename = os_filename.to_str().unwrap();
         let json_file_name = format!("assets/{}.json", filename);
-        ::std::process::Command::new("aseprite")
+        let aseprite_command = match os_type::current_platform() {
+            os_type::OSType::Windows => "C:/Program Files (x86)/Aseprite/Aseprite.exe",
+            _ => "aseprite"
+        };
+        ::std::process::Command::new(aseprite_command)
                 .arg(format!("assets/{}.ase", filename))
                 .arg("--sheet")
                 .arg(format!("assets/{}.png", filename))
