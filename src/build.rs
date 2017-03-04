@@ -67,10 +67,10 @@ fn decide_if_needs_rebuilt(file: &AseFile) -> bool {
         AseFile { ase: None, .. } => {
             // If we don't have an .ase file, then there's nothing to build
             return false;
-        }
+        },
         _ => {
             return true;
-        }
+        },
     }
 }
 
