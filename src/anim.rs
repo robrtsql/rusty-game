@@ -1,10 +1,5 @@
 use std::collections::HashMap;
-use std::path::Path;
 use std::cell::RefCell;
-use sdl2::image::*;
-use sdl2::render::*;
-use sdl2::rect::Rect;
-use sdl2::rect::Point;
 use ase::*;
 use graphics::Graphics;
 
