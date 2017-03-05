@@ -3,6 +3,8 @@ extern crate num_traits;
 extern crate serde_derive;
 #[macro_use]
 extern crate serde_json;
+#[macro_use]
+extern crate ecs;
 extern crate sdl2;
 
 use sdl2::pixels::Color;
@@ -10,9 +12,12 @@ use sdl2::event::Event;
 use sdl2::image::*;
 use sdl2::keyboard::Keycode;
 use graphics::Graphics;
+use myecs::*;
+use ecs::World;
 mod anim;
 mod ase;
 mod graphics;
+mod myecs;
 
 const SCREEN_FPS: u32 = 60;
 const SCREEN_TICKS_PER_FRAME: u32 = 1000 / SCREEN_FPS;
@@ -43,6 +48,9 @@ pub fn main() {
 
     let sheet = anim::import_sheet("character_idle", &mut graphics);
     let animator = anim::get_animator(&sheet);
+
+    let mut world = World::<MySystems>::new();
+    world.update();
 
     let mut dt = 0.0;
     let mut keep_playing = true;
