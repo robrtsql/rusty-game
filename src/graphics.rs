@@ -20,17 +20,15 @@ impl<'a> Graphics<'a> {
     }
 
     pub fn load_texture(&mut self, texture_path: String) {
-        let image = self.renderer.load_texture(Path::new(&texture_path)).unwrap();
-        self.textures.insert(texture_path, image);
+        if !self.textures.contains_key(&texture_path) {
+            let image = self.renderer.load_texture(Path::new(&texture_path)).unwrap();
+            self.textures.insert(texture_path, image);
+        } else {
+            print!("Nothing to load, we already loaded this into memory");
+        }
     }
 
-    pub fn render(&mut self,
-                  texture_path: &String,
-                  animator: &SpriteAnimator,
-                  x: i32,
-                  y: i32,
-                  zoom: u32,
-                  dt: f32) {
+    pub fn render(&mut self, animator: &SpriteAnimator, x: i32, y: i32, zoom: u32, dt: f32) {
         animator.update_frame_index(dt);
         let ref playback = animator.playback.borrow();
         let ref current_frame = animator.sheet.anims[&playback.current_anim]
@@ -46,9 +44,15 @@ impl<'a> Graphics<'a> {
                                       current_frame.w * zoom,
                                       current_frame.h * zoom);
         dest_rect.center_on(Point::new(x, y));
-        let ref texture = self.textures.get(texture_path).unwrap();
+        let ref texture = self.textures.get(&animator.sheet.texture_path).unwrap();
         self.renderer.copy(texture, Some(source_rect), Some(dest_rect)).expect("Render failed");
+    }
+
+    pub fn present(&mut self) {
         self.renderer.present();
+    }
+
+    pub fn clear(&mut self) {
         self.renderer.clear();
     }
 }

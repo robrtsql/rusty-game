@@ -6,6 +6,7 @@ use sdl2::render::*;
 use sdl2::rect::Rect;
 use sdl2::rect::Point;
 use ase::*;
+use graphics::Graphics;
 
 // Represents a set of animations and what is currently playing
 pub struct SpriteAnimator<'a> {
@@ -16,6 +17,7 @@ pub struct SpriteAnimator<'a> {
 // Represents an .ase file, or a set of animations
 pub struct Sheet {
     pub name: String,
+    pub texture_path: String,
     pub anims: HashMap<String, Vec<Frame>>,
 }
 
@@ -49,7 +51,7 @@ fn _get_current_frame_duration(index: usize, current_anim: &Vec<Frame>) -> f32 {
     return current_anim.get(index).unwrap().duration as f32;
 }
 
-pub fn import_sheet(filename: &str, renderer: &Renderer) -> Sheet {
+pub fn import_sheet(filename: &str, graphics: &mut Graphics) -> Sheet {
     let aseprite = import(filename);
     let mut anim_map = HashMap::new();
 
@@ -65,8 +67,12 @@ pub fn import_sheet(filename: &str, renderer: &Renderer) -> Sheet {
         anim_map.insert(anim.name.clone(), frames);
     }
 
+    let texture_path = format!("assets/{}.png", filename);
+    graphics.load_texture(texture_path.clone());
+
     return Sheet {
         name: filename.to_string(),
+        texture_path: texture_path,
         anims: anim_map,
     };
 }
