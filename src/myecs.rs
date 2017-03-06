@@ -3,20 +3,13 @@ use ecs::*;
 use ecs::system::*;
 use anim::*;
 
-/*
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub struct Animator<'a> {
-    pub spriteAnimator: SpriteAnimator<'a>
-}
-*/
-
 pub struct MyComponent {
     pub number: i32,
 }
 
 components! {
-    struct MyComponents {
-        #[hot] my_component: MyComponent,
+    struct<'a> MyComponents {
+        #[hot] sprite_animator: SpriteAnimator<'a>,
     }
 }
 

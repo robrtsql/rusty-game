@@ -2,14 +2,14 @@ use serde_json::*;
 use std::collections::HashMap;
 use std::fs::File;
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Aseprite {
     pub frames: HashMap<String, Frame>,
     pub meta: Meta,
 }
 
 #[allow(non_snake_case)]
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Frame {
     pub frame: Quad,
     pub rotated: bool,
@@ -19,7 +19,7 @@ pub struct Frame {
     pub duration: u32,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Quad {
     pub x: i32,
     pub y: i32,
@@ -28,7 +28,7 @@ pub struct Quad {
 }
 
 #[allow(non_snake_case)]
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Meta {
     pub app: String,
     pub version: String,
@@ -39,13 +39,13 @@ pub struct Meta {
     pub frameTags: Vec<FrameTag>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Size {
     pub w: u32,
     pub h: u32,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct FrameTag {
     pub name: String,
     pub from: u32,

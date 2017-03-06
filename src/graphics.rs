@@ -28,10 +28,10 @@ impl<'a> Graphics<'a> {
         }
     }
 
-    pub fn render(&mut self, animator: &SpriteAnimator, x: i32, y: i32, zoom: u32, dt: f32) {
+    pub fn render(&mut self, animator: &mut SpriteAnimator, x: i32, y: i32, zoom: u32, dt: f32) {
         animator.update_frame_index(dt);
-        let ref playback = animator.playback.borrow();
-        let ref current_frame = animator.sheet.anims[&playback.current_anim]
+        let ref playback = animator.playback;
+        let ref current_frame = animator.sheet.anims[playback.current_anim]
             .get(playback.current_frame_index as usize)
             .unwrap()
             .frame;

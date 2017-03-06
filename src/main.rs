@@ -47,7 +47,7 @@ pub fn main() {
     let mut timer = sdl_context.timer().unwrap();
 
     let sheet = anim::import_sheet("character_idle", &mut graphics);
-    let animator = anim::get_animator(&sheet);
+    let mut animator = anim::get_animator(&sheet);
 
     let mut world = World::<MySystems>::new();
     world.update();
@@ -66,7 +66,7 @@ pub fn main() {
         }
         let start_ticks = timer.ticks();
 
-        graphics.render(&animator, 100, 100, 2, dt);
+        graphics.render(&mut animator, 100, 100, 2, dt);
 
         graphics.present();
         graphics.clear();
