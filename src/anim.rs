@@ -4,8 +4,8 @@ use ase::*;
 use graphics::Graphics;
 
 // Represents a set of animations and what is currently playing
-pub struct SpriteAnimator<'a> {
-    pub sheet: &'a Sheet,
+pub struct SpriteAnimator {
+    pub sheet: Sheet,
     pub playback: RefCell<Playback>,
 }
 
@@ -24,7 +24,7 @@ pub struct Playback {
     pub current_frame_index: usize,
 }
 
-impl<'a> SpriteAnimator<'a> {
+impl SpriteAnimator {
     pub fn update_frame_index(&self, dt: f32) {
         let ref mut playback = self.playback.borrow_mut();
         playback.duration += dt * 1000.0;
@@ -46,7 +46,7 @@ fn _get_current_frame_duration(index: usize, current_anim: &Vec<Frame>) -> f32 {
     return current_anim.get(index).unwrap().duration as f32;
 }
 
-pub fn import_sheet(filename: &str, graphics: &mut Graphics) -> Sheet {
+pub fn import_animator(filename: &str, graphics: &mut Graphics) -> SpriteAnimator {
     let aseprite = import(filename);
     let mut anim_map = HashMap::new();
 
@@ -65,16 +65,12 @@ pub fn import_sheet(filename: &str, graphics: &mut Graphics) -> Sheet {
     let texture_path = format!("assets/{}.png", filename);
     graphics.load_texture(texture_path.clone());
 
-    return Sheet {
-        name: filename.to_string(),
-        texture_path: texture_path,
-        anims: anim_map,
-    };
-}
-
-pub fn get_animator<'a>(sheet: &'a Sheet) -> SpriteAnimator<'a> {
     return SpriteAnimator {
-        sheet: sheet,
+        sheet: Sheet {
+            name: filename.to_string(),
+            texture_path: texture_path,
+            anims: anim_map,
+        },
         playback: RefCell::new(Playback {
             current_anim: "Idle".to_string(),
             duration: 0.0,

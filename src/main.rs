@@ -41,8 +41,7 @@ pub fn main() {
 
     let mut timer = sdl_context.timer().unwrap();
 
-    let sheet = anim::import_sheet("character_idle", &mut graphics);
-    let animator = anim::get_animator(&sheet);
+    let animator = anim::import_animator("character_idle", &mut graphics);
 
     let mut dt = 0.0;
     let mut keep_playing = true;
