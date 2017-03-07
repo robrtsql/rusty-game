@@ -4,12 +4,14 @@ use ase::*;
 use graphics::Graphics;
 
 // Represents a set of animations and what is currently playing
+#[derive(Clone, Debug)]
 pub struct SpriteAnimator {
     pub sheet: Sheet,
     pub playback: RefCell<Playback>,
 }
 
 // Represents an .ase file, or a set of animations
+#[derive(Clone, Debug)]
 pub struct Sheet {
     pub name: String,
     pub texture_path: String,
@@ -17,7 +19,7 @@ pub struct Sheet {
 }
 
 // Represents the current playback state of an animator instance
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug)]
 pub struct Playback {
     pub current_anim: String,
     pub duration: f32,

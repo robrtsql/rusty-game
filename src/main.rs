@@ -3,6 +3,8 @@ extern crate num_traits;
 extern crate serde_derive;
 #[macro_use]
 extern crate serde_json;
+#[macro_use]
+extern crate ecs;
 extern crate sdl2;
 
 use sdl2::pixels::Color;
@@ -10,9 +12,13 @@ use sdl2::event::Event;
 use sdl2::image::*;
 use sdl2::keyboard::Keycode;
 use graphics::Graphics;
+use myecs::*;
+use ecs::World;
+use ecs::BuildData;
 mod anim;
 mod ase;
 mod graphics;
+mod myecs;
 
 const SCREEN_FPS: u32 = 60;
 const SCREEN_TICKS_PER_FRAME: u32 = 1000 / SCREEN_FPS;
@@ -42,6 +48,13 @@ pub fn main() {
     let mut timer = sdl_context.timer().unwrap();
 
     let animator = anim::import_animator("character_idle", &mut graphics);
+    
+    let mut world = World::<MySystems>::new();
+    let entity = world.create_entity(
+        |entity: BuildData<MyComponents>, data: &mut MyComponents| {
+            data.sprite_animator.add(&entity, animator);
+        }
+    );
 
     let mut dt = 0.0;
     let mut keep_playing = true;
@@ -57,7 +70,7 @@ pub fn main() {
         }
         let start_ticks = timer.ticks();
 
-        graphics.render(&animator, 100, 100, 2, dt);
+        world.update();
 
         graphics.present();
         graphics.clear();

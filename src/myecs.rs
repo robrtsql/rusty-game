@@ -1,61 +1,49 @@
 use std::cell::Cell;
+use std::cell::RefCell;
 use ecs::*;
 use ecs::system::*;
 use anim::*;
-
-/*
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub struct Animator<'a> {
-    pub spriteAnimator: SpriteAnimator<'a>
-}
-*/
+use graphics::*;
 
 components! {
     struct MyComponents {
-        //#[hot] animator: Animator<'a>,
+        #[hot] sprite_animator: SpriteAnimator,
     }
 }
 
 #[derive(Default)]
-pub struct DeltaService {
-    pub time: Cell<f32>,
+pub struct GraphicsService {
+    pub dt: Cell<f32>,
+    pub graphics: Graphics,
 }
 
 #[derive(Default)]
 pub struct MyServices {
-    pub delta: DeltaService,
+    pub graphics: GraphicsService,
 }
 
 impl ServiceManager for MyServices {
 }
 
-pub struct MotionProcess;
+pub struct HelloWorldProcess;
 
-impl System for MotionProcess { type Components = MyComponents; type Services = MyServices; }
+impl System for HelloWorldProcess { type Components = MyComponents; type Services = MyServices; }
 
-impl EntityProcess for MotionProcess {
+impl EntityProcess for HelloWorldProcess {
     fn process(&mut self, entities: EntityIter<MyComponents>, data: &mut DataHelper<MyComponents, MyServices>) {
-        /*
         for e in entities {
-            let mut position = data.position[e];
-            let velocity = data.velocity[e];
-            position.x += velocity.dx * data.services.delta.time.get();
-            position.y += velocity.dy * data.services.delta.time.get();
-            data.position[e] = position;
+            data.services.graphics.render(&data.animator, 100, 100, 2, data.services.graphics.dt.get());
         }
-        */
     }
 }
 
 systems! {
     struct MySystems<MyComponents, MyServices> {
         active: {
-            /*
-            motion: EntitySystem<MotionProcess> = EntitySystem::new(
-                MotionProcess,
-                aspect!(<MyComponents> all: [position, velocity])
+            motion: EntitySystem<HelloWorldProcess> = EntitySystem::new(
+                HelloWorldProcess,
+                aspect!(<MyComponents> all: [sprite_animator])
             ),
-            */
         },
         passive: {}
     }
