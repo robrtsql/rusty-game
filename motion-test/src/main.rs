@@ -84,7 +84,6 @@ fn physics_update(x: f32, dt: f32) -> f32 {
 }
 
 fn render_update(x: f32, image: &Texture, renderer: &mut Renderer, dt: f32) {
-    println!("{:32}\n", dt);
     let extrapolated_x = x + (150.0 * dt);
     let mut dest_rect = Rect::new(0,
       			          0,
